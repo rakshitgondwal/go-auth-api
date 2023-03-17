@@ -10,9 +10,17 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+var e = echo.New()
+
+func init(){
+	err := cleanenv.ReadEnv(&configs.Cfg)
+	fmt.Printf("%v", configs.Cfg)
+	if err != nil {
+		e.Logger.Fatal("Unable to load configuration")
+	}
+}
 
 func main() {
-	e := echo.New()
 	
 	err := cleanenv.ReadEnv(&configs.Cfg)
 	if err != nil {
