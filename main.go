@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"context"
 	// "net/http"
 
 	"golang-auth/configs"
@@ -23,8 +24,34 @@ func init(){
 
 func main() {
 	
-	db.ConnectDB()
+	client, err := db.ConnectDB()
+	if err != nil {
+		e.Logger.Fatal("Unable to connect to database")
+	}
+
+	type Tea struct {
+		Type     string
+		Category string
+		Toppings []string
+		Price    float32
+	}
 	
+	coll := client.Database("goapi-auth").Collection("trial")
+	docs := []interface{}{
+		Tea{Type: "Masala", Category: "black", Toppings: []string{"ginger", "pumpkin spice", "cinnamon"}, Price: 6.75},
+		Tea{Type: "Gyokuro", Category: "green", Toppings: []string{"berries", "milk foam"}, Price: 5.65},
+		Tea{Type: "English Breakfast", Category: "black", Toppings: []string{"whipped cream", "honey"}, Price: 5.75},
+		Tea{Type: "Sencha", Category: "green", Toppings: []string{"lemon", "whipped cream"}, Price: 5.15},
+		Tea{Type: "Assam", Category: "black", Toppings: []string{"milk foam", "honey", "berries"}, Price: 5.65},
+		Tea{Type: "Matcha", Category: "green", Toppings: []string{"whipped cream", "honey"}, Price: 6.45},
+		Tea{Type: "Earl Grey", Category: "black", Toppings: []string{"milk foam", "pumpkin spice"}, Price: 6.15},
+		Tea{Type: "Hojicha", Category: "green", Toppings: []string{"lemon", "ginger", "milk foam"}, Price: 5.55},
+	}
+	_, err2 := coll.InsertMany(context.TODO(), docs)
+	if err2 != nil {
+		e.Logger.Fatal("Unable to add data to the database")
+	}
+
 	// err := cleanenv.ReadEnv(&configs.Cfg)
 	// if err != nil {
 	// 	e.Logger.Fatal("Unable to load configuration")
