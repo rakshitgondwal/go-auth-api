@@ -1,11 +1,13 @@
 package controllers
 
 import (
-	"net/http"
-
 	"github.com/labstack/echo/v4"
+	"golang-auth/db"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func GetUsers(c echo.Context) error {
-	return c.String(http.StatusOK, "Hello, World!")
+func GetUsers(client *mongo.Client ) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		return db.FindAll("goapi-auth", "trial", client)
+	}
 }
