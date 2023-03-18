@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	// "net/http"
@@ -11,8 +10,7 @@ import (
 	"golang-auth/db"
 
 	"github.com/ilyakaznacheev/cleanenv"
-	"github.com/labstack/echo/v4"
-	"go.mongodb.org/mongo-driver/bson"
+	"github.com/labstack/echo/v4"	
 )
 
 var e = echo.New()
@@ -33,41 +31,30 @@ func main() {
 	}
 
 	//MongoDB schema which is in db/models.go
-	type Tea struct {
-		Type     string
-		Category string
-		Toppings []string
-		Price    float32
-	}
+	
 
 	coll := client.Database("goapi-auth").Collection("trial")
 	docs := []interface{}{
-		Tea{Type: "Masala", Category: "black", Toppings: []string{"ginger", "pumpkin spice", "cinnamon"}, Price: 6.75},
-		Tea{Type: "Gyokuro", Category: "green", Toppings: []string{"berries", "milk foam"}, Price: 5.65},
-		Tea{Type: "English Breakfast", Category: "black", Toppings: []string{"whipped cream", "honey"}, Price: 5.75},
-		Tea{Type: "Sencha", Category: "green", Toppings: []string{"lemon", "whipped cream"}, Price: 5.15},
-		Tea{Type: "Assam", Category: "black", Toppings: []string{"milk foam", "honey", "berries"}, Price: 5.65},
-		Tea{Type: "Matcha", Category: "green", Toppings: []string{"whipped cream", "honey"}, Price: 6.45},
-		Tea{Type: "Earl Grey", Category: "black", Toppings: []string{"milk foam", "pumpkin spice"}, Price: 6.15},
-		Tea{Type: "Hojicha", Category: "green", Toppings: []string{"lemon", "ginger", "milk foam"}, Price: 5.55},
+		db.Tea{Type: "Masala", Category: "black", Toppings: []string{"ginger", "pumpkin spice", "cinnamon"}, Price: 6.75},
+		db.Tea{Type: "Gyokuro", Category: "green", Toppings: []string{"berries", "milk foam"}, Price: 5.65},
+		db.Tea{Type: "English Breakfast", Category: "black", Toppings: []string{"whipped cream", "honey"}, Price: 5.75},
+		db.Tea{Type: "Sencha", Category: "green", Toppings: []string{"lemon", "whipped cream"}, Price: 5.15},
+		db.Tea{Type: "Assam", Category: "black", Toppings: []string{"milk foam", "honey", "berries"}, Price: 5.65},
+		db.Tea{Type: "Matcha", Category: "green", Toppings: []string{"whipped cream", "honey"}, Price: 6.45},
+		db.Tea{Type: "Earl Grey", Category: "black", Toppings: []string{"milk foam", "pumpkin spice"}, Price: 6.15},
+		db.Tea{Type: "Hojicha", Category: "green", Toppings: []string{"lemon", "ginger", "milk foam"}, Price: 5.55},
 	}
 	_, err2 := coll.InsertMany(context.TODO(), docs)
 	if err2 != nil {
 		e.Logger.Fatal("Unable to add data to the database")
 	}
 
-	cursor, err := coll.Find(context.TODO(), bson.D{})
-	if err != nil {
-		panic(err)
+	teas, err := db.FindAll("goapi-auth", "trial", client)
+	if err != nil{
+		e.Logger.Fatal("Couldn't find the data")
 	}
-	var results []Tea
-	if err = cursor.All(context.TODO(), &results); err != nil {
-		panic(err)
-	}
-	for _, result := range results {
-		res, _ := json.Marshal(result)
-		fmt.Println(string(res))
-	}
+	fmt.Println(teas)
+	
 
 	// err := cleanenv.ReadEnv(&configs.Cfg)
 	// if err != nil {

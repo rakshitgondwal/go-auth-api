@@ -36,3 +36,10 @@ type UserOrganization struct {
 	UserID  primitive.ObjectID `json:"_id" bson:"_id"`
 	IsAdmin bool               `json:"isAdmin" bson:"isAdmin"`
 }
+
+type Tea struct {
+	Type     string
+	Category string
+	Toppings []string
+	Price    float32
+}
