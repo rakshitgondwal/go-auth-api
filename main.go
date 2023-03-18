@@ -1,8 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"context"
+	"encoding/json"
+	"fmt"
+
 	// "net/http"
 
 	"golang-auth/configs"
@@ -10,11 +12,12 @@ import (
 
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/labstack/echo/v4"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 var e = echo.New()
 
-func init(){
+func init() {
 	err := cleanenv.ReadEnv(&configs.Cfg)
 	fmt.Printf("%v", configs.Cfg)
 	if err != nil {
@@ -23,19 +26,20 @@ func init(){
 }
 
 func main() {
-	
+
 	client, err := db.ConnectDB()
 	if err != nil {
 		e.Logger.Fatal("Unable to connect to database")
 	}
 
+	//MongoDB schema which is in db/models.go
 	type Tea struct {
 		Type     string
 		Category string
 		Toppings []string
 		Price    float32
 	}
-	
+
 	coll := client.Database("goapi-auth").Collection("trial")
 	docs := []interface{}{
 		Tea{Type: "Masala", Category: "black", Toppings: []string{"ginger", "pumpkin spice", "cinnamon"}, Price: 6.75},
@@ -52,12 +56,24 @@ func main() {
 		e.Logger.Fatal("Unable to add data to the database")
 	}
 
+	cursor, err := coll.Find(context.TODO(), bson.D{})
+	if err != nil {
+		panic(err)
+	}
+	var results []Tea
+	if err = cursor.All(context.TODO(), &results); err != nil {
+		panic(err)
+	}
+	for _, result := range results {
+		res, _ := json.Marshal(result)
+		fmt.Println(string(res))
+	}
+
 	// err := cleanenv.ReadEnv(&configs.Cfg)
 	// if err != nil {
 	// 	e.Logger.Fatal("Unable to load configuration")
 	// }
 
-	
 	// e.POST("/save", func(c echo.Context) error {
 	// 	name := c.FormValue("name")
 	// 	email := c.FormValue("email")
