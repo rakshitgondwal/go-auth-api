@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
+	"golang.org/x/crypto/bcrypt"
 	// "go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -32,12 +33,16 @@ func CreateUser(client *mongo.Client) echo.HandlerFunc{
         // Parse the incoming data from Postman
         username := c.QueryParam("username")
         password := c.QueryParam("password")
+        hashedPassword,err := bcrypt.GenerateFromPassword([]byte(password), 8)
+        if err != nil{
+            return c.JSON(http.StatusBadRequest,err)
+        }
         isAdmin, err := strconv.ParseBool(c.QueryParam("isAdmin"))
         if err != nil {
             return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid value for 'isAdmin'"})
         }
         organization := c.QueryParam("organization")
-        user := db.User{Username: username, Password: password, IsAdmin: isAdmin, Organization: organization}
+        user := db.User{Username: username, Password: string(hashedPassword), IsAdmin: isAdmin, Organization: organization}
         // Insert the data into the database
          return db.AddUser(user, client, c)
     }
