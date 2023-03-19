@@ -11,9 +11,11 @@ import (
 
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/labstack/echo/v4"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 var e = echo.New()
+var client *mongo.Client
 
 func init() {
 	err := cleanenv.ReadEnv(&configs.Cfg)
@@ -21,16 +23,15 @@ func init() {
 	if err != nil {
 		e.Logger.Fatal("Unable to load configuration")
 	}
-}
-
-func main() {
-
-	client, err := db.ConnectDB()
+	
+	cl, err := db.ConnectDB()
 	if err != nil {
 		e.Logger.Fatal("Unable to connect to database")
 	}
+	client = cl
+}
 
-
+func main() {
 	routes.InitRoutes(e, client)
 	//MongoDB schema which is in db/models.go
 	
