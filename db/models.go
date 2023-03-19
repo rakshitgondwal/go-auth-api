@@ -7,9 +7,8 @@ import (
 )
 
 type User struct {
-	ID           primitive.ObjectID `json:"_id" bson:"_id"`
+	// ID           primitive.ObjectID `json:"_id" bson:"_id"`
 	Username     string             `json:"username" bson:"username"`
-	Email        string             `json:"email" bson:"email"`
 	Password     string             `json:"password" bson:"password"`
 	IsAdmin      bool               `json:"isAdmin" bson:"isAdmin"`
 	RefreshToken string             `json:"refreshToken" bson:"refreshToken"`
@@ -35,11 +34,4 @@ type Organization struct {
 type UserOrganization struct {
 	UserID  primitive.ObjectID `json:"_id" bson:"_id"`
 	IsAdmin bool               `json:"isAdmin" bson:"isAdmin"`
-}
-
-type Tea struct {
-	Type     string
-	Category string
-	Toppings []string
-	Price    float32
 }

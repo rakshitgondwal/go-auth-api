@@ -9,8 +9,10 @@ import (
 )
 
 func GetUsers(client *mongo.Client) echo.HandlerFunc {
+    // 1. Is user logged in or not
+    // 2. Check for org
     return func(c echo.Context) error {
-        results, err := db.FindAll("goapi-auth", "trial", client)
+        results, err := db.FindAll("goapi-auth", "users", client)
         if err != nil {
             return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
         }
