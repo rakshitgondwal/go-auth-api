@@ -14,7 +14,6 @@ import (
 )
 
 func ConnectDB() (*mongo.Client, error) {
-
     serverAPIOptions := options.ServerAPI(options.ServerAPIVersion1)
     uri := fmt.Sprintf("mongodb+srv://%s:%s@goapi-auth.nclmvto.mongodb.net/?retryWrites=true&w=majority", configs.Cfg.DbUsername, configs.Cfg.DbPassword)
     clientOptions := options.Client().ApplyURI(uri).SetServerAPIOptions(serverAPIOptions)

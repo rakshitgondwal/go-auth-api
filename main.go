@@ -16,17 +16,20 @@ import (
 var e = echo.New()
 
 func init() {
+	//Initialize the cleanenv package
 	err := cleanenv.ReadEnv(&configs.Cfg)
 	fmt.Printf("%v", configs.Cfg)
 	if err != nil {
 		e.Logger.Fatal("Unable to load configuration")
 	}
 	
+	//Setup database connection
 	client, err := db.ConnectDB()
 	if err != nil {
 		e.Logger.Fatal("Unable to connect to database")
 	}
 	
+	//Set up the routes
 	routes.InitRoutes(e, client)
 }
 
@@ -69,5 +72,6 @@ func main() {
 	// 	return c.String(http.StatusOK, "name:" + name + ", email:" + email)
 	// })
 
+	//Start the server
 	e.Logger.Fatal(e.Start(fmt.Sprintf("localhost:%s", configs.Cfg.Port)))
 }
