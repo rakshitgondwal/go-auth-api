@@ -13,12 +13,10 @@ func InitRoutes(e *echo.Echo, client *mongo.Client){
 	// e.POST("/refresh", RefreshToken)
 
 	// //Admin Routes
-	// adminGroup := e.Group("/admins")
-	// adminGroup.PUT("/register", CreateUser)
-	// adminGroup.DELETE("/delete/:id", DeleteUser)
+	// e.PUT("/register", CreateUser)
+	// e.DELETE("/delete/:id", DeleteUser)
 
 	// //User Routes
-	// userGroup := e.Group("/users")
-	// userGroup.GET("/", controllers.GetUsers)
+	// e.GET("/", controllers.GetUsers)
 	e.GET("/", controllers.GetUsers(client))
 }
