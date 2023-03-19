@@ -1,7 +1,7 @@
 package main
 
 import (
-	"context"
+	// "context"
 	"fmt"
 
 	// "net/http"
@@ -12,6 +12,7 @@ import (
 
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/labstack/echo/v4"
+	// "go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -39,15 +40,14 @@ func init() {
 
 func main() {
 	
-	coll := client.Database("goapi-auth").Collection("users")
-	users := []interface{}{
-		db.User{Username: "rakshitgondwal", Password: "rakshitgondwal", IsAdmin: false, Organization: "first"},
-		db.User{Username: "notrakshit", Password: "notrakshit", IsAdmin: true, Organization: "second"},
-	}
-	_, err2 := coll.InsertMany(context.TODO(), users)
-	if err2 != nil {
-		e.Logger.Fatal("Unable to add data to the database")
-	}
+	// coll := client.Database("goapi-auth").Collection("users")
+	// user := []interface{}{
+	// 	db.User{Username: "rakshitgondwal", Password: "rakshitgondwal", IsAdmin: false, Organization: "first"},
+	// }
+	// _, err2 := coll.InsertOne(context.TODO(), user)
+	// if err2 != nil {
+	// 	e.Logger.Fatal("Unable to add data to the database")
+	// }
 
 	//Start the server
 	e.Logger.Fatal(e.Start(fmt.Sprintf("localhost:%s", configs.Cfg.Port)))
