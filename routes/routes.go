@@ -1,16 +1,14 @@
 package routes
 
 import (
-	"github.com/labstack/echo/v4"
 	"golang-auth/controllers"
+
+	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func InitRoutes(e *echo.Echo, client *mongo.Client){
+func InitRoutes(e *echo.Echo, client *mongo.Client) {
 	// //Public Routes
-	// e.POST("/login", LoginUser)
-	// e.POST("/logout", LogoutUser)
-	// e.POST("/refresh", RefreshToken)
 
 	// //Admin Routes
 	// e.DELETE("/delete/:id", DeleteUser)
@@ -19,4 +17,9 @@ func InitRoutes(e *echo.Echo, client *mongo.Client){
 	// e.GET("/", controllers.GetUsers)
 	e.GET("/", controllers.GetUsers(client))
 	e.POST("/register", controllers.CreateUser(client))
+
+	e.POST("/login", controllers.LoginUser(client))
+	// e.POST("/logout", controllers.LogoutUser)
+	// e.POST("/refresh", controllers.RefreshToken)
+
 }
