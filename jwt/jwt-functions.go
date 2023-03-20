@@ -1,10 +1,14 @@
 package jwt
 
 import (
+	"fmt"
 	"golang-auth/configs"
+	"golang-auth/db"
 	"time"
 
 	"github.com/golang-jwt/jwt"
+
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func GenerateToken(username string) (string, error) {
@@ -48,4 +52,32 @@ func GenerateRefreshToken(userID string) (string, error) {
     }
     
     return signedToken, nil
+}
+
+
+func RevokeToken(tokenString string, client *mongo.Client) error {
+    // Parse the token
+    _, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+        fmt.Println("first:")
+        fmt.Println(tokenString)
+        fmt.Println("second:")
+        fmt.Println(token)
+        return []byte(configs.Cfg.JwtSecret), nil
+    })
+    if err != nil {
+        fmt.Println("Error parsing token:", err)
+        return err
+    }
+
+    // Add the token to the blacklist collection
+    blackToken := db.RevokedToken{
+        Token: tokenString,
+        Time:  time.Now(),
+    }
+    if err := db.AddTokenToBlacklist(blackToken, client); err != nil {
+        fmt.Println("Error adding token to blacklist:", err)
+        return err
+    }
+
+    return nil
 }

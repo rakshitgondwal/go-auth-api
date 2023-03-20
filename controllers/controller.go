@@ -5,6 +5,7 @@ import (
 	"golang-auth/db"
 	"net/http"
 	"strconv"
+	"time"
 
 	"golang-auth/jwt"
 
@@ -40,6 +41,16 @@ func LoginUser(client *mongo.Client) echo.HandlerFunc {
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
+		
+		newToken := db.Tokens{
+			Token: token,
+			Username: username,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+			ExpiresAt: time.Now().Add(1 * time.Hour),
+		}
+
+		db.AddToken(newToken, client)
 
 		// Store the JWT token in the response header
 		c.Response().Header().Set("Authorization", "Bearer "+token)
@@ -48,11 +59,24 @@ func LoginUser(client *mongo.Client) echo.HandlerFunc {
 			"token": token,
 		})
 	}
-
 }
 
-func LogoutUser() {
+func LogoutUser(client *mongo.Client) echo.HandlerFunc {
+    return func(c echo.Context) error {
+        // Get the token from the Authorization header
+        tokenString := c.Request().Header.Get("Authorization")
+        if tokenString == "" {
+            return echo.NewHTTPError(http.StatusBadRequest, "Missing token in request header")
+        }
 
+        // Revoke the token by adding it to the blacklist
+        err := jwt.RevokeToken(tokenString, client)
+        if err != nil {
+            return echo.NewHTTPError(http.StatusInternalServerError, "Failed to revoke token")
+        }
+
+        return c.JSON(http.StatusOK, "Successfully logged out")
+    }
 }
 
 func RefreshToken() {

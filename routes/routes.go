@@ -19,7 +19,7 @@ func InitRoutes(e *echo.Echo, client *mongo.Client) {
 	e.POST("/register", controllers.CreateUser(client))
 
 	e.POST("/login", controllers.LoginUser(client))
-	// e.POST("/logout", controllers.LogoutUser)
+	e.POST("/logout", controllers.LogoutUser(client))
 	// e.POST("/refresh", controllers.RefreshToken)
 
 }

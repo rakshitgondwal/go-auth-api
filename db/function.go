@@ -32,6 +32,18 @@ func AddUser(user User, client *mongo.Client, c echo.Context) error{
         return c.JSON(http.StatusOK, map[string]string{"message": "User added successfully"})
 }
 
+func AddToken(token Tokens, client *mongo.Client) error {
+    coll := client.Database("goapi-auth").Collection("tokens")
+    _, err := coll.InsertOne(context.Background(), token)
+    return err
+}
+
+func AddTokenToBlacklist(token RevokedToken, client *mongo.Client) error {
+    coll := client.Database("goapi-auth").Collection("blacklisted-tokens")
+    _, err := coll.InsertOne(context.Background(), token)
+    return err
+}
+
 func FindOne(username string, db string, collection string, client *mongo.Client) (*User, error) {
     var user User
     coll := client.Database(db).Collection(collection)
