@@ -56,12 +56,21 @@ func GenerateRefreshToken(userID string) (string, error) {
 
 
 func RevokeToken(tokenString string, client *mongo.Client) error {
+    
     // Parse the token
     _, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
         fmt.Println("first:")
         fmt.Println(tokenString)
         fmt.Println("second:")
         fmt.Println(token)
+
+        loc, err2 := time.LoadLocation("Asia/Kolkata")
+		if err2 != nil {
+			fmt.Println(err2)
+		}
+
+        fmt.Println(time.Now().In(loc))
+        
         return []byte(configs.Cfg.JwtSecret), nil
     })
     if err != nil {

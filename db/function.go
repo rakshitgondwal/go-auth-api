@@ -3,9 +3,11 @@ package db
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -36,6 +38,17 @@ func AddToken(token Tokens, client *mongo.Client) error {
     coll := client.Database("goapi-auth").Collection("tokens")
     _, err := coll.InsertOne(context.Background(), token)
     return err
+}
+
+func UpdateToken(userId primitive.ObjectID, client *mongo.Client, token string, c echo.Context) error{
+    coll := client.Database("goapi-auth").Collection("tokens")
+    filter := bson.D{{Key: "_id", Value: userId}}
+    update := bson.D{{Key: "$set", Value: bson.D{{Key: "token", Value: token},{Key: "updatedAt", Value: time.Now()}}}}
+    _, err := coll.UpdateOne(context.TODO(), filter, update)
+    if err != nil {
+        return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+    }
+    return nil
 }
 
 func AddTokenToBlacklist(token RevokedToken, client *mongo.Client) error {

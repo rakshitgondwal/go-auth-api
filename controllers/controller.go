@@ -2,6 +2,7 @@ package controllers
 
 import (
 	// "context"
+	"fmt"
 	"golang-auth/db"
 	"net/http"
 	"strconv"
@@ -13,6 +14,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	// "go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -41,16 +43,22 @@ func LoginUser(client *mongo.Client) echo.HandlerFunc {
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
+		loc, err := time.LoadLocation("Asia/Kolkata")
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
 		
 		newToken := db.Tokens{
 			Token: token,
 			Username: username,
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
-			ExpiresAt: time.Now().Add(1 * time.Hour),
+			CreatedAt: time.Now().In(loc),
+			UpdatedAt: time.Now().In(loc),
+			ExpiresAt: time.Now().In(loc).Add(1 * time.Hour),
 		}
 
 		db.AddToken(newToken, client)
+		fmt.Print(newToken)
 
 		// Store the JWT token in the response header
 		c.Response().Header().Set("Authorization", "Bearer "+token)
@@ -79,8 +87,46 @@ func LogoutUser(client *mongo.Client) echo.HandlerFunc {
     }
 }
 
-func RefreshToken() {
+func RefreshToken(client *mongo.Client) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		// Parse the request body to get the user credentials
+        username := c.QueryParam("username")
+		password := c.QueryParam("password")
 
+		// Check if the user exists in the database
+		dbUser, err := db.FindOne(username, "goapi-auth", "users", client)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		}
+		if dbUser == nil {
+			return echo.NewHTTPError(http.StatusUnauthorized, "Invalid username or password")
+		}
+
+		// Check if the provided password is correct
+		if err := bcrypt.CompareHashAndPassword([]byte(dbUser.Password), []byte(password)); err != nil {
+			return echo.NewHTTPError(http.StatusUnauthorized, "Invalid username or password")
+		}
+
+		// Generate a JWT token for the authenticated user
+		token, err := jwt.GenerateToken(dbUser.Username)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		}
+
+		err2 := db.UpdateToken(dbUser.ID,client,token,c)
+		if err != nil{
+			return echo.NewHTTPError(http.StatusInternalServerError, err2.Error())
+		}
+		fmt.Println("new token:")
+		fmt.Print(token)
+
+		// Store the JWT token in the response header
+		c.Response().Header().Set("Authorization", "Bearer "+token)
+
+		return c.JSON(http.StatusOK, map[string]string{
+			"token": token,
+		})
+	}
 }
 
 func GetUsers(client *mongo.Client) echo.HandlerFunc {
@@ -98,6 +144,7 @@ func GetUsers(client *mongo.Client) echo.HandlerFunc {
 func CreateUser(client *mongo.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		// Parse the incoming data from Postman
+		ID := primitive.NewObjectID()
 		username := c.QueryParam("username")
 		password := c.QueryParam("password")
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 8)
@@ -109,7 +156,7 @@ func CreateUser(client *mongo.Client) echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid value for 'isAdmin'"})
 		}
 		organization := c.QueryParam("organization")
-		user := db.User{Username: username, Password: string(hashedPassword), IsAdmin: isAdmin, Organization: organization}
+		user := db.User{ID: ID, Username: username, Password: string(hashedPassword), IsAdmin: isAdmin, Organization: organization}
 		// Insert the data into the database
 		return db.AddUser(user, client, c)
 	}
