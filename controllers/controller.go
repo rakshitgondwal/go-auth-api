@@ -21,7 +21,7 @@ import (
 func LoginUser(client *mongo.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		// Parse the request body to get the user credentials
-        username := c.QueryParam("username")
+		username := c.QueryParam("username")
 		password := c.QueryParam("password")
 
 		// Check if the user exists in the database
@@ -48,10 +48,10 @@ func LoginUser(client *mongo.Client) echo.HandlerFunc {
 			fmt.Println(err)
 			return err
 		}
-		
+
 		newToken := db.Tokens{
-			Token: token,
-			Username: username,
+			Token:     token,
+			Username:  username,
 			CreatedAt: time.Now().In(loc),
 			UpdatedAt: time.Now().In(loc),
 			ExpiresAt: time.Now().In(loc).Add(1 * time.Hour),
@@ -70,21 +70,21 @@ func LoginUser(client *mongo.Client) echo.HandlerFunc {
 }
 
 func LogoutUser(client *mongo.Client) echo.HandlerFunc {
-    return func(c echo.Context) error {
-        // Get the token from the Authorization header
-        tokenString := c.Request().Header.Get("Authorization")
-        if tokenString == "" {
-            return echo.NewHTTPError(http.StatusBadRequest, "Missing token in request header")
-        }
+	return func(c echo.Context) error {
+		// Get the token from the Authorization header
+		tokenString := c.Request().Header.Get("Authorization")
+		if tokenString == "" {
+			return echo.NewHTTPError(http.StatusBadRequest, "Missing token in request header")
+		}
 
-        // Revoke the token by adding it to the blacklist
-        err := jwt.RevokeToken(tokenString, client)
-        if err != nil {
-            return echo.NewHTTPError(http.StatusInternalServerError, "Failed to revoke token")
-        }
+		// Revoke the token by adding it to the blacklist
+		err := jwt.RevokeToken(tokenString, client)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to revoke token")
+		}
 
-        return c.JSON(http.StatusOK, "Successfully logged out")
-    }
+		return c.JSON(http.StatusOK, "Successfully logged out")
+	}
 }
 
 func RefreshToken(client *mongo.Client) echo.HandlerFunc {
@@ -113,8 +113,8 @@ func RefreshToken(client *mongo.Client) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 
-		err2 := db.UpdateToken(dbUser.Username,client,token,c)
-		if err2 != nil{
+		err2 := db.UpdateToken(dbUser.Username, client, token, c)
+		if err2 != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, err2.Error())
 		}
 		fmt.Println("new token:")
@@ -159,5 +159,25 @@ func CreateUser(client *mongo.Client) echo.HandlerFunc {
 		user := db.User{ID: ID, Username: username, Password: string(hashedPassword), IsAdmin: isAdmin, Organization: organization}
 		// Insert the data into the database
 		return db.AddUser(user, client, c)
+	}
+}
+
+func DeleteUser(client *mongo.Client) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		username := c.QueryParam("username")
+		fmt.Println(username)
+		dbUser, err := db.FindOne(username, "goapi-auth", "users", client)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		}
+		fmt.Printf("dbUser: %+v\n", dbUser)
+		if dbUser == nil {
+			return echo.NewHTTPError(http.StatusUnauthorized, "Invalid username or password")
+		}
+
+		if err2 := db.Delete(dbUser.Username, client); err2 != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, err2.Error())
+		}
+		return c.JSON(http.StatusOK, "successfully deleted")
 	}
 }

@@ -8,18 +8,17 @@ import (
 )
 
 func InitRoutes(e *echo.Echo, client *mongo.Client) {
-	// //Public Routes
-
-	// //Admin Routes
-	// e.DELETE("/delete/:id", DeleteUser)
-
-	// //User Routes
-	// e.GET("/", controllers.GetUsers)
-	e.GET("/", controllers.GetUsers(client))
-	e.POST("/register", controllers.CreateUser(client))
-
+	
+	//PUBLIC ROUTES
 	e.POST("/login", controllers.LoginUser(client))
 	e.POST("/logout", controllers.LogoutUser(client))
 	e.POST("/refresh", controllers.RefreshToken(client))
+	
+	//USER ROUTES
+	e.GET("/", controllers.GetUsers(client))
+
+	//ADMIN ROUTES
+	e.POST("/register", controllers.CreateUser(client))
+	e.POST("/delete", controllers.DeleteUser(client))
 
 }
