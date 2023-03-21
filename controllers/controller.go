@@ -90,7 +90,7 @@ func LogoutUser(client *mongo.Client) echo.HandlerFunc {
 func RefreshToken(client *mongo.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		// Parse the request body to get the user credentials
-        username := c.QueryParam("username")
+		username := c.QueryParam("username")
 		password := c.QueryParam("password")
 
 		// Check if the user exists in the database
@@ -113,12 +113,12 @@ func RefreshToken(client *mongo.Client) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 
-		err2 := db.UpdateToken(dbUser.ID,client,token,c)
-		if err != nil{
+		err2 := db.UpdateToken(dbUser.Username,client,token,c)
+		if err2 != nil{
 			return echo.NewHTTPError(http.StatusInternalServerError, err2.Error())
 		}
 		fmt.Println("new token:")
-		fmt.Print(token)
+		fmt.Println(token)
 
 		// Store the JWT token in the response header
 		c.Response().Header().Set("Authorization", "Bearer "+token)

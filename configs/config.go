@@ -7,8 +7,6 @@ type ConfigDatabase struct {
 	UserCollection      string `yaml:"host" env:"USERCLC" env-default:"users"`
 	TokenCollection     string `yaml:"host" env:"TOKENS" env-default:"TOKENS"`
 	BlacklistCollection string `yaml:"host" env:"BLACKLISTCLC" env-default:"blacklisted-tokens"`
-	DbUsername          string `yaml:"host" env:"DBUSERNAME" env-default:"rakshitgondwal"`
-	DbPassword          string `yaml:"host" env:"DBPASSWORD" env-default:"rakshitgondwal"`
 	JwtSecret           string `yaml:"host" env:"JWTSECRET"  env-default:"rakshitgondwal"`
 }
 
