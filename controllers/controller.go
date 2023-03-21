@@ -157,6 +157,32 @@ func CreateUser(client *mongo.Client) echo.HandlerFunc {
 		}
 		organization := c.QueryParam("organization")
 		user := db.User{ID: ID, Username: username, Password: string(hashedPassword), IsAdmin: isAdmin, Organization: organization}
+
+		// Generate a JWT token for the authenticated user
+		token, err := jwt.GenerateToken(username)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		}
+		loc, err := time.LoadLocation("Asia/Kolkata")
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+
+		newToken := db.Tokens{
+			Token:     token,
+			Username:  username,
+			CreatedAt: time.Now().In(loc),
+			UpdatedAt: time.Now().In(loc),
+			ExpiresAt: time.Now().In(loc).Add(1 * time.Hour),
+		}
+
+		db.AddToken(newToken, client)
+		fmt.Print(newToken)
+
+		// Store the JWT token in the response header
+		c.Response().Header().Set("Authorization", "Bearer "+token)
+
 		// Insert the data into the database
 		return db.AddUser(user, client, c)
 	}
