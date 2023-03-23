@@ -12,13 +12,10 @@ import (
 
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/labstack/echo/v4"
-
 	// "go.mongodb.org/mongo-driver/bson"
-
 )
 
 var e = echo.New()
-
 
 func init() {
 	//Initialize the cleanenv package
@@ -27,13 +24,13 @@ func init() {
 	if err != nil {
 		e.Logger.Fatal("Unable to load configuration")
 	}
-	
+
 	//Setup database connection
 	cl, err := db.ConnectDB()
 	if err != nil {
 		e.Logger.Fatal("Unable to connect to database")
 	}
-	
+
 	//Set up the routes
 	routes.InitRoutes(e, cl)
 }

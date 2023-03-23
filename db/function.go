@@ -12,8 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-
-//Used to find one user
+// Used to find one user
 func FindOne(username string, db string, collection string, client *mongo.Client) (*User, error) {
 	var user User
 	coll := client.Database(db).Collection(collection)
@@ -27,7 +26,7 @@ func FindOne(username string, db string, collection string, client *mongo.Client
 	return &user, nil
 }
 
-//Used to delete one user
+// Used to delete one user
 func Delete(username string, client *mongo.Client) error {
 
 	coll := client.Database("goapi-auth").Collection("users")
@@ -89,10 +88,9 @@ func UpdateToken(username string, client *mongo.Client, token string, c echo.Con
 	return nil
 }
 
-//Used to add a token to the blacklisted tokens
+// Used to add a token to the blacklisted tokens
 func AddTokenToBlacklist(token RevokedToken, client *mongo.Client) error {
 	coll := client.Database("goapi-auth").Collection("blacklisted-tokens")
 	_, err := coll.InsertOne(context.Background(), token)
 	return err
 }
-
