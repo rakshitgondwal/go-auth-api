@@ -1,10 +1,7 @@
 package main
 
 import (
-	// "context"
 	"fmt"
-
-	// "net/http"
 
 	"golang-auth/configs"
 	"golang-auth/db"
@@ -12,7 +9,6 @@ import (
 
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/labstack/echo/v4"
-	// "go.mongodb.org/mongo-driver/bson"
 )
 
 var e = echo.New()
