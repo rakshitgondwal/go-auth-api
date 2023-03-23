@@ -20,7 +20,7 @@ func InitRoutes(e *echo.Echo, client *mongo.Client) {
 	e.GET("/", controllers.GetUsers(client), middleware.RequireLogin)
 
 	//ADMIN ROUTES
-	e.POST("/add", controllers.CreateUser(client), middleware.RequireAdmin)
-	e.POST("/delete", controllers.DeleteUser(client), middleware.RequireAdmin)
+	e.POST("/add", controllers.CreateUser(client))
+	e.POST("/delete", controllers.DeleteUser(client))
 
 }
