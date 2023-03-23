@@ -11,6 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+//Used to generate a new token
 func GenerateToken(username string, isAdmin bool) (string, error) {
     // Set the expiration time for the token
     expirationTime := time.Now().Add(1 * time.Hour)
@@ -33,6 +34,7 @@ func GenerateToken(username string, isAdmin bool) (string, error) {
     return signedToken, nil
 }
 
+//Used to refresh a token
 func GenerateRefreshToken(userID string) (string, error) {
     // Set the expiration time for the refresh token
     expirationTime := time.Now().Add(24 * time.Hour)
@@ -55,7 +57,7 @@ func GenerateRefreshToken(userID string) (string, error) {
     return signedToken, nil
 }
 
-
+//Used to revoke a token
 func RevokeToken(tokenString string, client *mongo.Client) error {
     
     // Parse the token

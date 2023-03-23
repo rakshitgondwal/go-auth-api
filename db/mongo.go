@@ -13,6 +13,7 @@ import (
     
 )
 
+//Used to connect to a database
 func ConnectDB() (*mongo.Client, error) {
     serverAPIOptions := options.ServerAPI(options.ServerAPIVersion1)
     
