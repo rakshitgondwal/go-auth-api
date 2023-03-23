@@ -12,9 +12,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func FindAll(db string, collection string, client *mongo.Client) ([]User, error) {
-	coll := client.Database(db).Collection(collection)
-	cursor, err := coll.Find(context.TODO(), bson.D{})
+func FindAll(client *mongo.Client, org string) ([]User, error) {
+	coll := client.Database("goapi-auth").Collection("users")
+	filter := bson.D{{Key: "organization", Value: org}}
+	cursor, err := coll.Find(context.TODO(), filter)
 	if err != nil {
 		return nil, err
 	}

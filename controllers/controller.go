@@ -39,7 +39,7 @@ func LoginUser(client *mongo.Client) echo.HandlerFunc {
 		}
 
 		// Generate a JWT token for the authenticated user
-		token, err := jwt.GenerateToken(dbUser.Username)
+		token, err := jwt.GenerateToken(dbUser.Username, dbUser.IsAdmin)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
@@ -108,7 +108,7 @@ func RefreshToken(client *mongo.Client) echo.HandlerFunc {
 		}
 
 		// Generate a JWT token for the authenticated user
-		token, err := jwt.GenerateToken(dbUser.Username)
+		token, err := jwt.GenerateToken(dbUser.Username, dbUser.IsAdmin)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
@@ -133,7 +133,9 @@ func GetUsers(client *mongo.Client) echo.HandlerFunc {
 	// 1. Is user logged in or not
 	// 2. Check for org
 	return func(c echo.Context) error {
-		results, err := db.FindAll("goapi-auth", "users", client)
+		username := c.QueryParam("username")
+		user, err := db.FindOne(username, "goapi-auth", "users", client)
+		results, err := db.FindAll(client, user.Organization)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 		}
@@ -159,7 +161,7 @@ func CreateUser(client *mongo.Client) echo.HandlerFunc {
 		user := db.User{ID: ID, Username: username, Password: string(hashedPassword), IsAdmin: isAdmin, Organization: organization}
 
 		// Generate a JWT token for the authenticated user
-		token, err := jwt.GenerateToken(username)
+		token, err := jwt.GenerateToken(username, isAdmin)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}

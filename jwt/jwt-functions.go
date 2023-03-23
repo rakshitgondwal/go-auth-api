@@ -11,15 +11,16 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func GenerateToken(username string) (string, error) {
+func GenerateToken(username string, isAdmin bool) (string, error) {
     // Set the expiration time for the token
     expirationTime := time.Now().Add(1 * time.Hour)
 
     // Create the JWT claims
     claims := jwt.MapClaims{}
     claims["authorized"] = true
-    claims["user_id"] = username
+    claims["username"] = username
     claims["exp"] = expirationTime
+    claims["isAdmin"] = isAdmin
 
     // Generate the JWT token
     token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -28,7 +29,7 @@ func GenerateToken(username string) (string, error) {
     if err != nil {
         return "", err
     }
-    
+
     return signedToken, nil
 }
 
