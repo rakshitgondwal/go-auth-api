@@ -2,7 +2,6 @@ package routes
 
 import (
 	"golang-auth/controllers"
-	"golang-auth/middleware"
 
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -17,7 +16,7 @@ func InitRoutes(e *echo.Echo, client *mongo.Client) {
 	e.POST("/refresh", controllers.RefreshToken(client))
 	
 	//USER ROUTES
-	e.GET("/", controllers.GetUsers(client), middleware.RequireLogin)
+	e.GET("/", controllers.GetUsers(client))
 
 	//ADMIN ROUTES
 	e.POST("/add", controllers.CreateUser(client))
