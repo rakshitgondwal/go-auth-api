@@ -10,7 +10,7 @@ import (
 func InitRoutes(e *echo.Echo, client *mongo.Client) {
 
 	//PUBLIC ROUTES
-	e.POST("/register", controllers.CreateUser(client))
+	// e.POST("/register", controllers.CreateUser(client))
 	e.POST("/login", controllers.LoginUser(client))
 	e.POST("/logout", controllers.LogoutUser(client))
 	e.POST("/refresh", controllers.RefreshToken(client))

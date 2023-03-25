@@ -2,8 +2,6 @@ package db
 
 import (
 	"time"
-
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type User struct {
@@ -19,17 +17,6 @@ type Tokens struct {
 	CreatedAt time.Time `json:"createdAt" bson:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt" bson:"updatedAt"`
 	ExpiresAt time.Time `json:"expiresAt" bson:"expiresAt"`
-}
-
-type Organization struct {
-	ID    primitive.ObjectID `json:"_id" bson:"_id"`
-	Name  string             `json:"name" bson:"name"`
-	Users []UserOrganization `json:"users" bson:"users"`
-}
-
-type UserOrganization struct {
-	UserID  primitive.ObjectID `json:"_id" bson:"_id"`
-	IsAdmin bool               `json:"isAdmin" bson:"isAdmin"`
 }
 
 type RevokedToken struct {
