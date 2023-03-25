@@ -58,12 +58,19 @@ I followed REST API conventions for designing the API endpoints and used HTTP me
 
 
 ##### Public Routes
+
 -  `POST /login` - For logging in an user
+    Paramenters: `username`, `password`
 -  `POST /logout` - For logginf out an user
+    Parameters: `username`, `password`
 -  `POST /refresh` - For refreshing a token
+    Parameters: `username`, `passowrd`
 ##### User Routes
 -  `GET /` - For getting all users in an organization
+    Parameters- `username`
 ##### Admin Routes
 -  `POST /add` - For adding one user to the organization
+    Parameters- `username`, `newUsername`, `newPassword`, `isAdmin`, `organization`
 -  `POST /delete` - For deleting a user from the organization
+    Parameters- `username`, `delUsername`
 
