@@ -10,7 +10,6 @@ import (
 	"golang-auth/jwt"
 
 	"github.com/labstack/echo/v4"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -30,7 +29,6 @@ func CreateUser(client *mongo.Client) echo.HandlerFunc {
 		//Checks if user is admin and perform the rest of the functions
 		if dbUser.IsAdmin {
 			//Parse the incoming data
-			ID := primitive.NewObjectID()
 			username := c.QueryParam("newUsername")
 			password := c.QueryParam("newPassword")
 			hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 8)
@@ -42,7 +40,7 @@ func CreateUser(client *mongo.Client) echo.HandlerFunc {
 				return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid value for 'isAdmin'"})
 			}
 			organization := c.QueryParam("organization")
-			user := db.User{ID: ID, Username: username, Password: string(hashedPassword), IsAdmin: isAdmin, Organization: organization}
+			user := db.User{Username: username, Password: string(hashedPassword), IsAdmin: isAdmin, Organization: organization}
 
 			// Generate a JWT token for the authenticated user
 			token, err := jwt.GenerateToken(username, isAdmin)
